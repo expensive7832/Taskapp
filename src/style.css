@@ -1,0 +1,26 @@
+*{
+    margin: 0!important;
+    padding: 0!important;
+    box-sizing: border-box;
+    
+}
+
+a{
+    text-decoration: none;
+}
+header a{
+    text-shadow: 0 0 2px red;
+}
+.main{
+    width: 50%;
+}
+@media(max-width: 576px){
+    .main{
+        width: 90%;
+    }
+}
+
+.reminder{
+    border-left: 3px solid #10da10d5;
+    
+}
