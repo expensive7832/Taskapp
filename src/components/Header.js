@@ -1,14 +1,19 @@
+const Header = ({ click, show }) => {
+  return (
+    <header className="card-header d-flex justify-content-between align-items-center">
+      <h3>TaskBar</h3>
 
-const Header = ({click, show}) => {
-    return (
-        <header className="card-header d-flex justify-content-between align-items-center">
-            <h3><a className="text-primary" href="gwg" >TaskBar</a></h3>
+      <button
+        onClick={click}
+        className={`btn btn-lg fw-bold p-1 ${
+          show ? "btn-dark text-white" : "btn-success text-dark "
+        }`}
+      >
+        {show ? "Close" : "Add"}
+      </button>
+      
+    </header>
+  );
+};
 
-            <div className="card-stool my-2 mx-1">
-                <button onClick={click} className={`btn-lg fw-bold ${show ? "btn-danger text-white": "btn-success text-dark "}`}>{show ? "Close" : "Add"}</button>
-            </div>
-        </header>
-    )
-}
-
-export default Header
+export default Header;

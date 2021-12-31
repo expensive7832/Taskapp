@@ -2,91 +2,62 @@ import React from "react";
 import { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Header from "./components/Header";
-import Tasks from "./components/Tasks";
 import Footer from "./components/Footer";
 import AddTask from "./components/AddTask";
 import "./style.css";
-
+import Tasks from "./components/Tasks";
 
 const App = () => {
-
-    const [Task, setTask] = useState([]);
-
-      const [showTask, setshowTask] = useState(false);
-
-       useEffect(() => {
-       
-        const getTask = async() => {
-          const taskFromServer = await fetchTask()
-           setTask(taskFromServer)
-        }
-
-        getTask()
-       },[]) 
-
-       const fetchTask = async() => {
-        const res = await fetch("http://localhost:8000/task")
-        const data = await res.json();
-        return data
-    }
-
-      const Del = async (id) =>{
-            await fetch(`http://localhost:8000/task/${id}`, {
-            method: "DELETE"
-        }
-        )
-
-         setTask( Task.filter((Task) => id!==Task.id));
-      }
+  const [Todos, setTodos] = useState(() =>{
+   const savedTask = localStorage.getItem("Tasks")
+   if(savedTask){
+      return JSON.parse(savedTask)
+   }else{
+      return []
+   }
+  });
 
 
-      const fetchSingle = async(id) => {
-        const res = await fetch(`http://localhost:8000/task/${id}`)
-        const data = await res.json();
-        return data
-    }
+  useEffect(() =>{
+   const setTask = () =>{
+      localStorage.setItem("Tasks", JSON.stringify(Todos))
+   }
+   setTask()
+  }, [Todos])
 
-      const toggle = async (id) =>{
-          const dataToToggle = await fetchSingle(id)
-          const res = {...dataToToggle, reminder: !dataToToggle.reminder}
+  const [showTask, setshowTask] = useState(false);
+  
+  const Add = (task) => {
+      setTodos([
+         ...Todos,
+         {id: Todos.length + 1, ...task}
+      ])
+  };
 
-          const updateTask = await fetch(`http://localhost:8000/task/${id}`,{
-              method: "PUT", 
-              headers:{
-                "content-type" : "application/json"
-             },
-             body: JSON.stringify(res)
-          })
+  const onDel= ( id) =>{
+    setTodos(Todos.filter((todo) => todo?.id !== id))
+  }
 
-          const data = await updateTask.json()
-        setTask(Task.map((task) => id === task.id ? {...task, reminder: data.reminder}: task))
-      }
+  const onToggle= (id) =>{
+    setTodos(Todos?.map((todo) => todo?.id === id ? {...todo, reminder: !todo?.reminder} : todo))
+  }
 
-      const Add = async(task) =>{
-         const add = await fetch("http://localhost:8000/task", {
-             method: "POST",
-             headers:{
-                "content-type" : "application/json"
-             },
-             body:  JSON.stringify(task)
-         })
-          
-         const data = await add.json()
-         setTask([...Task, data]);
-      }
+  
+  return (
+    <div className="container main card mt-5 m-auto">
+      <Header click={() => setshowTask(!showTask)} show={showTask} />
+
+      { showTask && <AddTask onAdd={Add} /> }
       
+      {Todos.length > 0 ? 
+        <Tasks tasks={Todos} onDel={onDel} onToggle={onToggle}  />
+      : 
+        <p className="text-center text-warning fw-bold lead">No Data</p>
+      }
 
-
- return (
-  <div className="container main card mt-5 m-auto">
-        <Header click={() => setshowTask(!showTask)} show={showTask}/>
-        {showTask && <AddTask onAdd={Add}/>}
-        {Task.length > 0 ? <Tasks tasks={Task} ondelete={Del} ontoggle={toggle}/> :
-         <p className="text-center text-warning fw-bold lead">No Data</p> 
-         }
-
-         <Footer/>
+      <Footer setTodos={setTodos}/>
     </div>
- )}
+  );
+};
 
 export default App;
